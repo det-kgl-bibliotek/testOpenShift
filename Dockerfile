@@ -6,6 +6,11 @@ WORKDIR /myapp
 
 COPY Gemfile /myapp/Gemfile
 COPY Gemfile.lock /myapp/Gemfile.lock
+
+#Will this be enough for libffi?
+#https://stackoverflow.com/questions/7852566/error-error-installing-ffi-error-failed-to-build-gem-native-extension
+RUN apt-get update && apt-get install libffi-dev make automake
+
 RUN bundle install
 
 COPY . /myapp
