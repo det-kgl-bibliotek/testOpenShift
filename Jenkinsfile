@@ -6,13 +6,13 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 
     echo "Hello from the project running Jenkins: ${openshift.project()}"
 
-        //Print environment, for debug purposes
-        stage('environment') {
-            sh 'env > env.txt'
-            for (String i : readFile('env.txt').split("\r?\n")) {
-                println i
-            }
-        }
+//    //Print environment, for debug purposes
+//    stage('environment') {
+//        sh 'env > env.txt'
+//        for (String i : readFile('env.txt').split("\r?\n")) {
+//            println i
+//        }
+//    }
 
     String projectName = encodeName("${JOB_NAME}")
     echo "name=${projectName}"
@@ -21,65 +21,45 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
     //GO to a node with ruby
     //    https://github.com/redhat-cop/containers-quickstarts/tree/master/jenkins-slaves/jenkins-slave-ruby
 //    node('jenkins-slave-ruby') {
-        stage('checkout') {
-            checkout scm
-            def url = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
-        }
+    stage('checkout') {
+        checkout scm
+        def url = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
+    }
 
-        stage('Create test project') {
-            recreateProject(projectName)
+    stage('Create test project') {
+        recreateProject(projectName)
 
-            openshift.withProject(projectName) {
+        openshift.withProject(projectName) {
 
 
-                APPLICATION_NAME = projectName
-                stage("Build Ruby Docker Image") {
+            APPLICATION_NAME = projectName
+            stage("Start rails app") {
 
-                    def rubyApp = openshift.newApp("ruby~${env.WORKSPACE}#${env.BRANCH_NAME}", "--strategy=source")
+                def rubyApp = openshift.newApp("ruby~${env.WORKSPACE}#${env.BRANCH_NAME}", "--strategy=source")
 
-                    echo "new-app created ${rubyApp.count()} objects named: ${rubyApp.names()}"
+                echo "new-app created ${rubyApp.count()} objects named: ${rubyApp.names()}"
 
-                    rubyApp.describe()
+                rubyApp.describe()
 
-                    def build = rubyApp.narrow("bc")
-                    build.logs("-f")
+                def build = rubyApp.narrow("bc")
+                build.logs("-f")
 
-                    def deployment = rubyApp.narrow("dc")
-                    deployment.logs("-f")
+                def deployment = rubyApp.narrow("dc")
+                deployment.logs("-f")
 
-//
-//
-//                    dockerFile = """
-//FROM ruby:latest
-//
-//RUN mkdir ${APPLICATION_NAME}
-//
-//WORKDIR ${APPLICATION_NAME}
-//
-//COPY Gemfile Gemfile.lock ${APPLICATION_NAME}/
-//
-//RUN cd ${APPLICATION_NAME} && \
-//    source /opt/rh/rh-ruby24/enable \
-//    && bundle install
-//
-//COPY . ${APPLICATION_NAME}
-//
-//RUN chgrp -R 0 ${APPLICATION_NAME} && \\
-//            chmod -R g=u /{APPLICATION_NAME}
-//
-//EXPOSE 3000
-//CMD bundle exec rails s -p 3000 -b '0.0.0.0'
-//"""
-//
-//                    buildConfig = openshift.newBuild("--dockerfile=\"${dockerFile}\"", "--name=${APPLICATION_NAME}-web").narrow("bc")
-//                    build = buildConfig.startBuild("--from-dir=.")
-//                    build.logs("-f")
-                }
+                //We have to create a route, as the maven node is not part of the same project as the tomcat pod,
+                // and thus cannot connect directly to the service
+                openshift.raw("expose", "service/testopenshift")
+                route = openshift.selector("route/testopenshift")
+                routeURL = "http://${route.object().spec.host}"
+                echo "Webserver host exposes as ${routeURL}"
+
 
             }
 
         }
     }
+}
 
 
 private void recreateProject(String projectName) {
