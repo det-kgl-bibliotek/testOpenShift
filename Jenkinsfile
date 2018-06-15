@@ -6,7 +6,6 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 
     echo "Hello from the project running Jenkins: ${openshift.project()}"
 
-
 //        //Print environment, for debug purposes
 //        stage('environment') {
 //            sh 'env > env.txt'
@@ -15,18 +14,17 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 //            }
 //        }
 
-        String projectName = encodeName("${JOB_NAME}")
-        echo "name=${projectName}"
+    String projectName = encodeName("${JOB_NAME}")
+    echo "name=${projectName}"
 
-        //Stages outside a node declaration runs on the jenkins host
-        //GO to a node with ruby
-        //    https://github.com/redhat-cop/containers-quickstarts/tree/master/jenkins-slaves/jenkins-slave-ruby
-        node('jenkins-slave-ruby') {
-            stage('checkout') {
-                checkout scm
-            }
-
+    //Stages outside a node declaration runs on the jenkins host
+    //GO to a node with ruby
+    //    https://github.com/redhat-cop/containers-quickstarts/tree/master/jenkins-slaves/jenkins-slave-ruby
+    node('jenkins-slave-ruby') {
+        stage('checkout') {
+            checkout scm
         }
+
     }
 }
 
