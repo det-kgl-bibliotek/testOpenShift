@@ -23,6 +23,7 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 //    node('jenkins-slave-ruby') {
         stage('checkout') {
             checkout scm
+            def url = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
         }
 
         stage('Create test project') {
@@ -34,13 +35,14 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
                 APPLICATION_NAME = projectName
                 stage("Build Ruby Docker Image") {
 
-                    def rubyApp = openshift.newApp("ruby~${env.WORKSPACE}", "--strategy=source")
+                    def rubyApp = openshift.newApp("ruby~${env.WORKSPACE}#${env.BRANCH_NAME}", "--strategy=source")
 
                     echo "new-app created ${rubyApp.count()} objects named: ${rubyApp.names()}"
 
                     rubyApp.describe()
 
-                    rubyApp.narrow("dc").logs("-f")
+                    def bc = rubyApp.narrow("bc")
+                    bc.logs("-f")
 
 
 //
