@@ -42,7 +42,8 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
                     rubyApp.describe()
 
                     def bc = rubyApp.narrow("bc")
-                    bc.logs("-f")
+                    build = bc.startBuild()
+                    build.logs("-f")
 
 
 //
@@ -74,23 +75,6 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 //                    build.logs("-f")
                 }
 
-                stage('Deploy test db') {
-                    def dbApp = openshift.newApp(
-                            '--template=postgresql-ephemeral',
-                            "--name='${projectName}-db'",
-                            "--labels=from='" + projectName + "'",
-                            "--param=DATABASE_SERVICE_NAME=db",
-                            "--param=POSTGRESQL_DATABASE=dvdrip",
-                            "--param=POSTGRESQL_PASSWORD=dvdripPassword",
-                            "--param=POSTGRESQL_USER=dvdrip",
-                    )
-
-                    echo "new-app created ${dbApp.count()} objects named: ${dbApp.names()}"
-
-                    dbApp.describe()
-
-                    dbApp.narrow("dc").logs("-f")
-                }
             }
 
         }
