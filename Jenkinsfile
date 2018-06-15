@@ -6,17 +6,6 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 
     echo "Hello from the project running Jenkins: ${openshift.project()}"
 
-    //Create template with maven settings.xml, so we have credentials for nexus
-    podTemplate(
-            cloud: 'openshift', //cloud must be openshift
-            label: 'ruby-on-rails',
-            name: 'ruby-on-rails',
-            containers: [
-                    containerTemplate(name:'ruby',image:'ruby:2.2.2')
-            ]
-    ) {
-
-        //Stages outside a node declaration runs on the jenkins host
 
 //        //Print environment, for debug purposes
 //        stage('environment') {
@@ -29,8 +18,10 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
         String projectName = encodeName("${JOB_NAME}")
         echo "name=${projectName}"
 
-        //GO to a node with maven and settings.xml
-        node('ruby-on-rails') {
+        //Stages outside a node declaration runs on the jenkins host
+        //GO to a node with ruby
+        //    https://github.com/redhat-cop/containers-quickstarts/tree/master/jenkins-slaves/jenkins-slave-ruby
+        node('jenkins-slave-ruby') {
             stage('checkout') {
                 checkout scm
             }
