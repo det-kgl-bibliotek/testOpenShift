@@ -54,7 +54,8 @@ CMD bundle exec rails s -p 3000 -b '0.0.0.0'
 """
 
                     buildConfig = openshift.newBuild("--dockerfile=\"${dockerFile}\"", "--name=${APPLICATION_NAME}-web").narrow("bc")
-//                    build.logs("-f")
+                    build = buildConfig.startBuild("--from-dir=.")
+                    build.logs("-f")
                 }
 
                 stage('Deploy test db') {
