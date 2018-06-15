@@ -46,7 +46,7 @@ RUN bundle install
 
 COPY . /${APPLICATION_NAME}
 
-UN chgrp -R 0 /${APPLICATION_NAME} && \\
+RUN chgrp -R 0 /${APPLICATION_NAME} && \\
             chmod -R g=u /${APPLICATION_NAME}
 
 EXPOSE 3000
