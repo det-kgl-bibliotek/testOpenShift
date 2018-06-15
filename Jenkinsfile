@@ -33,29 +33,43 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 
                 APPLICATION_NAME = projectName
                 stage("Build Ruby Docker Image") {
-                    dockerFile = """
-FROM ruby:latest
 
-RUN mkdir ${APPLICATION_NAME}
+                    def rubyApp = openshift.newApp(".")
 
-WORKDIR ${APPLICATION_NAME}
+                    echo "new-app created ${rubyApp.count()} objects named: ${rubyApp.names()}"
 
-COPY Gemfile Gemfile.lock ${APPLICATION_NAME}/
+                    rubyApp.describe()
 
-RUN bundle install
+                    rubyApp.narrow("dc").logs("-f")
 
-COPY . ${APPLICATION_NAME}
 
-RUN chgrp -R 0 ${APPLICATION_NAME} && \\
-            chmod -R g=u /{APPLICATION_NAME}
-
-EXPOSE 3000
-CMD bundle exec rails s -p 3000 -b '0.0.0.0'
-"""
-
-                    buildConfig = openshift.newBuild("--dockerfile=\"${dockerFile}\"", "--name=${APPLICATION_NAME}-web").narrow("bc")
-                    build = buildConfig.startBuild("--from-dir=.")
-                    build.logs("-f")
+//
+//
+//                    dockerFile = """
+//FROM ruby:latest
+//
+//RUN mkdir ${APPLICATION_NAME}
+//
+//WORKDIR ${APPLICATION_NAME}
+//
+//COPY Gemfile Gemfile.lock ${APPLICATION_NAME}/
+//
+//RUN cd ${APPLICATION_NAME} && \
+//    source /opt/rh/rh-ruby24/enable \
+//    && bundle install
+//
+//COPY . ${APPLICATION_NAME}
+//
+//RUN chgrp -R 0 ${APPLICATION_NAME} && \\
+//            chmod -R g=u /{APPLICATION_NAME}
+//
+//EXPOSE 3000
+//CMD bundle exec rails s -p 3000 -b '0.0.0.0'
+//"""
+//
+//                    buildConfig = openshift.newBuild("--dockerfile=\"${dockerFile}\"", "--name=${APPLICATION_NAME}-web").narrow("bc")
+//                    build = buildConfig.startBuild("--from-dir=.")
+//                    build.logs("-f")
                 }
 
                 stage('Deploy test db') {
