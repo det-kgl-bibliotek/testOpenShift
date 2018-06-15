@@ -20,7 +20,7 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
     //Stages outside a node declaration runs on the jenkins host
     //GO to a node with ruby
     //    https://github.com/redhat-cop/containers-quickstarts/tree/master/jenkins-slaves/jenkins-slave-ruby
-    node('jenkins-slave-ruby') {
+//    node('jenkins-slave-ruby') {
         stage('checkout') {
             checkout scm
         }
@@ -36,18 +36,18 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
                     dockerFile = """
 FROM ruby:latest
 
-RUN mkdir /${APPLICATION_NAME}
+RUN mkdir ${APPLICATION_NAME}
 
-WORKDIR /${APPLICATION_NAME}
+WORKDIR ${APPLICATION_NAME}
 
-COPY Gemfile Gemfile.lock /${APPLICATION_NAME}/
+COPY Gemfile Gemfile.lock ${APPLICATION_NAME}/
 
 RUN bundle install
 
-COPY . /${APPLICATION_NAME}
+COPY . ${APPLICATION_NAME}
 
-RUN chgrp -R 0 /${APPLICATION_NAME} && \\
-            chmod -R g=u /${APPLICATION_NAME}
+RUN chgrp -R 0 ${APPLICATION_NAME} && \\
+            chmod -R g=u /{APPLICATION_NAME}
 
 EXPOSE 3000
 CMD bundle exec rails s -p 3000 -b '0.0.0.0'
@@ -78,7 +78,7 @@ CMD bundle exec rails s -p 3000 -b '0.0.0.0'
 
         }
     }
-}
+
 
 private void recreateProject(String projectName) {
     echo "Delete the project ${projectName}, ignore errors if the project does not exist"
