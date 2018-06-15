@@ -25,9 +25,60 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
             checkout scm
         }
 
+        stage('Create test project') {
+            recreateProject(projectName)
+
+            openshift.withProject(projectName) {
+
+
+                APPLICATION_NAME = projectName
+                stage("Build Ruby Docker Image") {
+                    dockerFile = """
+FROM ruby:latest
+
+RUN mkdir /${APPLICATION_NAME}
+
+WORKDIR /${APPLICATION_NAME}
+
+COPY Gemfile Gemfile.lock /${APPLICATION_NAME}/
+
+RUN bundle install
+
+COPY . /${APPLICATION_NAME}
+
+UN chgrp -R 0 /${APPLICATION_NAME} && \\
+            chmod -R g=u /${APPLICATION_NAME}
+
+EXPOSE 3000
+CMD bundle exec rails s -p 3000 -b '0.0.0.0'
+"""
+
+                    buildConfig = openshift.newBuild("--dockerfile=\"${dockerFile}\"", "--name=${APPLICATION_NAME}-web").narrow("bc")
+//                    build.logs("-f")
+                }
+
+                stage('Deploy test db') {
+                    def dbApp = openshift.newApp(
+                            '--template=postgresql-ephemeral',
+                            "--name='${projectName}-db'",
+                            "--labels=from='" + projectName + "'",
+                            "--param=DATABASE_SERVICE_NAME=db",
+                            "--param=POSTGRESQL_DATABASE=dvdrip",
+                            "--param=POSTGRESQL_PASSWORD=dvdripPassword",
+                            "--param=POSTGRESQL_USER=dvdrip",
+                    )
+
+                    echo "new-app created ${dbApp.count()} objects named: ${dbApp.names()}"
+
+                    dbApp.describe()
+
+                    dbApp.narrow("dc").logs("-f")
+                }
+            }
+
+        }
     }
 }
-
 
 private void recreateProject(String projectName) {
     echo "Delete the project ${projectName}, ignore errors if the project does not exist"
