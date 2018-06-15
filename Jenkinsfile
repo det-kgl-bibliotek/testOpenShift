@@ -9,8 +9,8 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
     //Create template with maven settings.xml, so we have credentials for nexus
     podTemplate(
             cloud: 'openshift', //cloud must be openshift
-            label: 'Ruby-on-rails',
-            name: 'Ruby-on-rails',
+            label: 'ruby-on-rails',
+            name: 'ruby-on-rails',
             containers: [
                     containerTemplate(name:'Ruby',image:'ruby:2.2.2')
             ]
@@ -30,7 +30,7 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
         echo "name=${projectName}"
 
         //GO to a node with maven and settings.xml
-        node('Ruby-on-rails') {
+        node('ruby-on-rails') {
 
 
         }
