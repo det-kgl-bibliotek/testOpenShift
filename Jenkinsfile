@@ -12,7 +12,7 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
             label: 'ruby-on-rails',
             name: 'ruby-on-rails',
             containers: [
-                    containerTemplate(name:'Ruby',image:'ruby:2.2.2')
+                    containerTemplate(name:'ruby',image:'ruby:2.2.2')
             ]
     ) {
 
