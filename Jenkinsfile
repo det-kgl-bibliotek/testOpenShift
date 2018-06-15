@@ -44,6 +44,8 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
                     def build = rubyApp.narrow("bc")
                     build.logs("-f")
 
+                    def deployment = rubyApp.narrow("dc")
+                    deployment.logs("-f")
 
 //
 //
