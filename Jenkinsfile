@@ -31,7 +31,9 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 
         //GO to a node with maven and settings.xml
         node('ruby-on-rails') {
-
+            stage('checkout') {
+                checkout scm
+            }
 
         }
     }
