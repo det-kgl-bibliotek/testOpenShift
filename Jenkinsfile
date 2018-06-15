@@ -34,7 +34,7 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
                 APPLICATION_NAME = projectName
                 stage("Build Ruby Docker Image") {
 
-                    def rubyApp = openshift.newApp(".")
+                    def rubyApp = openshift.newApp(env.WORKSPACE)
 
                     echo "new-app created ${rubyApp.count()} objects named: ${rubyApp.names()}"
 
