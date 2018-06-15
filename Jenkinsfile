@@ -6,13 +6,13 @@ openshift.withCluster() { // Use "default" cluster or fallback to OpenShift clus
 
     echo "Hello from the project running Jenkins: ${openshift.project()}"
 
-//        //Print environment, for debug purposes
-//        stage('environment') {
-//            sh 'env > env.txt'
-//            for (String i : readFile('env.txt').split("\r?\n")) {
-//                println i
-//            }
-//        }
+        //Print environment, for debug purposes
+        stage('environment') {
+            sh 'env > env.txt'
+            for (String i : readFile('env.txt').split("\r?\n")) {
+                println i
+            }
+        }
 
     String projectName = encodeName("${JOB_NAME}")
     echo "name=${projectName}"
