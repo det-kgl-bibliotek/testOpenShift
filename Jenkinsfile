@@ -112,5 +112,6 @@ private static String encodeName(groovy.lang.GString jobName) {
             .replaceFirst("^[^/]+/", '')
             .replace("/", '-')
             .replaceAll("^openshift-", "")
+            .toLowerCase()
     return name
 }
